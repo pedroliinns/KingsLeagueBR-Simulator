@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>KINGS LEAGUE BRASIL - Simulador</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    table {
+      width: 90%;
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px;
+    }
+    th {
+      background-color: #222;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #555;
+    }
+    footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>KINGS LEAGUE BRASIL - Simulador</h1>
+
+  <table id="standingsTable">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Jogos</th>
+        <th>Vitórias</th>
+        <th>Derrotas</th>
+        <th>Shotout Vencidos</th>
+        <th>Shotout Perdidos</th>
+        <th>Pontos</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Próximos Jogos</h2>
+  <div id="matches"></div>
+
+  <footer>by: Pedro Lins</footer>
+
+  <script>
+    const teams = [
+      "Furia FC", "G3X FC", "Nyvelados FC", "Desimpedidos Goti", "Fluxo FC",
+      "Capim FC", "Dendele FC", "FC Real Elite", "LOUD SC", "Funkbol Clube"
+    ];
+
+    // Aqui você altera manualmente as vitórias, derrotas, etc
+    const standings = {
+      "Furia FC": {games: 7, wins: 6, losses: 0, shootoutWins: 0, shootoutLosses: 1, points: 19},
+      "G3X FC": {games: 7, wins: 6, losses: 1, shootoutWins: 0, shootoutLosses: 0, points: 18},
+      "Nyvelados FC": {games: 7, wins: 4, losses: 1, shootoutWins: 1, shootoutLosses: 1, points: 15},
+      "Desimpedidos Goti": {games: 7, wins: 3, losses: 2, shootoutWins: 2, shootoutLosses: 0, points: 13},
+      "Fluxo FC": {games: 7, wins: 3, losses: 2, shootoutWins: 1, shootoutLosses: 1, points: 12},
+      "Capim FC": {games: 7, wins: 3, losses: 4, shootoutWins: 0, shootoutLosses: 0, points: 9},
+      "Dendele FC": {games: 7, wins: 2, losses: 3, shootoutWins: 1, shootoutLosses: 1, points: 9},
+      "FC Real Elite": {games: 7, wins: 1, losses: 4, shootoutWins: 0, shootoutLosses: 2, points: 5},
+      "LOUD SC": {games: 7, wins: 1, losses: 6, shootoutWins: 0, shootoutLosses: 0, points: 3},
+      "Funkbol Clube": {games: 7, wins: 0, losses: 6, shootoutWins: 1, shootoutLosses: 0, points: 2},
+    };
+
+    const matches = [
+  // Rodada 8
+  { round: 8, teams: ["Capim FC", "Nyvelados FC"] },
+  { round: 8, teams: ["Desimpedidos Goti", "FC Real Elite"] },
+  { round: 8, teams: ["Funkbol Clube", "Furia FC"] },
+  { round: 8, teams: ["Dendele FC", "LOUD SC"] },
+  { round: 8, teams: ["G3X FC", "Fluxo FC"] },
+  // Rodada 9
+  { round: 9, teams: ["Fluxo FC", "Furia FC"] },
+  { round: 9, teams: ["Funkbol Clube", "LOUD SC"] },
+  { round: 9, teams: ["Capim FC", "Desimpedidos Goti"] },
+  { round: 9, teams: ["G3X FC", "Nyvelados FC"] },
+  { round: 9, teams: ["Dendele FC", "FC Real Elite"] }
+];
+
+    function updateStandings() {
+      const tbody = document.querySelector("#standingsTable tbody");
+      tbody.innerHTML = "";
+      teams.forEach(team => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${team}</td>
+          <td>${standings[team].games}</td>
+          <td>${standings[team].wins}</td>
+          <td>${standings[team].losses}</td>
+          <td>${standings[team].shootoutWins}</td>
+          <td>${standings[team].shootoutLosses}</td>
+          <td>${standings[team].points}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function createMatches() {
+  const div = document.getElementById("matches");
+  div.innerHTML = "";
+
+  const rodada8 = matches.filter(match => match.round === 8);
+  const rodada9 = matches.filter(match => match.round === 9);
+
+  if (rodada8.length > 0) {
+    const rodada8Div = document.createElement("div");
+    rodada8Div.innerHTML = "<h3>Rodada 8</h3>";
+    rodada8.forEach((match, index) => {
+      const realIndex = matches.indexOf(match);
+      const matchDiv = document.createElement("div");
+      matchDiv.innerHTML = `
+        <strong>${match.teams[0]} vs ${match.teams[1]}</strong><br>
+        <button onclick="playMatch(${realIndex}, '${match.teams[0]}', '${match.teams[1]}', 'win')">${match.teams[0]} Vence</button>
+        <button onclick="playMatch(${realIndex}, '${match.teams[0]}', '${match.teams[1]}', 'shootoutWin')">${match.teams[0]} Vence Shootout</button>
+        <button onclick="playMatch(${realIndex}, '${match.teams[1]}', '${match.teams[0]}', 'shootoutWin')">${match.teams[1]} Vence Shootout</button>
+        <button onclick="playMatch(${realIndex}, '${match.teams[1]}', '${match.teams[0]}', 'win')">${match.teams[1]} Vence</button>
+        <hr>
+      `;
+      rodada8Div.appendChild(matchDiv);
+    });
+    div.appendChild(rodada8Div);
+  }
+
+  if (rodada9.length > 0) {
+    const rodada9Div = document.createElement("div");
+    rodada9Div.innerHTML = "<h3>Rodada 9</h3>";
+    rodada9.forEach((match, index) => {
+      const realIndex = matches.indexOf(match);
+      const matchDiv = document.createElement("div");
+      matchDiv.innerHTML = `
+        <strong>${match.teams[0]} vs ${match.teams[1]}</strong><br>
+        <button onclick="playMatch(${realIndex}, '${match.teams[0]}', '${match.teams[1]}', 'win')">${match.teams[0]} Vence</button>
+        <button onclick="playMatch(${realIndex}, '${match.teams[0]}', '${match.teams[1]}', 'shootoutWin')">${match.teams[0]} Vence Shootout</button>
+        <button onclick="playMatch(${realIndex}, '${match.teams[1]}', '${match.teams[0]}', 'shootoutWin')">${match.teams[1]} Vence Shootout</button>
+        <button onclick="playMatch(${realIndex}, '${match.teams[1]}', '${match.teams[0]}', 'win')">${match.teams[1]} Vence</button>
+        <hr>
+      `;
+      rodada9Div.appendChild(matchDiv);
+    });
+    div.appendChild(rodada9Div);
+  }
+}
+
+    function playMatch(index, winner, loser, type) {
+      standings[winner].games++;
+      standings[loser].games++;
+
+      if (type === "win") {
+        standings[winner].points += 3;
+        standings[winner].wins++;
+        standings[loser].losses++;
+      } else if (type === "shootoutWin") {
+        standings[winner].points += 2;
+        standings[loser].points += 1;
+        standings[winner].shootoutWins++;
+        standings[loser].shootoutLosses++;
+      }
+
+      matches.splice(index, 1);
+      createMatches();
+      updateStandings();
+    }
+
+    updateStandings();
+    createMatches();
+  </script>
+
+</body>
+</html>
